@@ -1,6 +1,39 @@
 import fetch from 'isomorphic-unfetch';
 import { fetchPlaylistViaEmbed } from './spotifyEmbed.service.js';
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const EMBED_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.5',
+  'Connection': 'keep-alive',
+  'Upgrade-Insecure-Requests': '1',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'none',
+  'Sec-Fetch-User': '?1',
+  'Cache-Control': 'max-age=0'
+};
+
+const PROXIES = [
+  'https://corsproxy.io/?',
+  'https://api.allorigins.win/raw?url=',
+  'https://cors-anywhere.herokuapp.com/',
+  '' // direct fallback
+];
+
+/**
+ * Extract playlist ID from a Spotify URL.
+ */
+export const extractPlaylistId = (url) => {
+  const uriMatch = url.match(/spotify:playlist:([a-zA-Z0-9]+)/);
+  if (uriMatch) return uriMatch[1];
+  const urlMatch = url.match(/playlist\/([a-zA-Z0-9]+)/);
+  if (urlMatch) return urlMatch[1];
+  throw new Error('Invalid Spotify playlist URL. Please paste a link like: https://open.spotify.com/playlist/...');
+};
+
 const scrapeEmbedPlaylist = async (playlistId) => {
   try {
     const embedUrl = `https://open.spotify.com/embed/playlist/${playlistId}`;
@@ -20,7 +53,7 @@ const scrapeEmbedPlaylist = async (playlistId) => {
     return {
       spotifyId: playlistId,
       name: (entity.title || entity.name || 'Spotify Playlist') + ' [HTML Bypassed]',
-      description: 'Extracted via HTML Scraper due to active IP Ban',
+      description: 'Extracted via HTML Scraper',
       owner: 'Spotify User',
       coverArt: entity.coverArt?.sources?.[0]?.url || 'https://placehold.co/400',
       totalTracks: trackList.length,
@@ -39,104 +72,6 @@ const scrapeEmbedPlaylist = async (playlistId) => {
   }
 };
 
-/**
- * Extract playlist ID from a Spotify URL.
- */
-export const extractPlaylistId = (url) => {
-  // Handle spotify:playlist:ID URI format
-  const uriMatch = url.match(/spotify:playlist:([a-zA-Z0-9]+)/);
-  if (uriMatch) return uriMatch[1];
-
-  // Handle https://open.spotify.com/playlist/ID?si=... and similar
-  const urlMatch = url.match(/playlist\/([a-zA-Z0-9]+)/);
-  if (urlMatch) return urlMatch[1];
-
-  throw new Error('Invalid Spotify playlist URL. Please paste a link like: https://open.spotify.com/playlist/...');
-};
-
-const PROXIES = [
-  'https://corsproxy.io/?',
-  'https://api.allorigins.win/raw?url=',
-  'https://cors-anywhere.herokuapp.com/',
-  '' // direct fallback
-];
-
-/**
-<<<<<<< HEAD
- * Get Spotify access token using Client Credentials Flow (no user login needed).
-=======
- * Get an anonymous Spotify access token by loading the embed page.
- * Uses a rotating proxy strategy to bypass local IP bans.
->>>>>>> 310c620 (feat: rotating proxy + embed HTML scraper fallback to bypass IP ban)
- */
-<<<<<<< HEAD
-const getSpotifyAuthToken = async () => {
-  const clientId = process.env.SPOTIFY_CLIENT_ID;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-  if (!clientId || !clientSecret) {
-    throw new Error('Missing Spotify Client Credentials in .env');
-  }
-  const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-  const res = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Basic ${credentials}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: 'grant_type=client_credentials',
-  });
-  const data = await res.json();
-  if (!data.access_token) throw new Error('Failed to get Spotify access token');
-  return data.access_token;
-};
-
-/**
- * Get playlist track count with a lightweight metadata request.
- * Returns null when Spotify blocks client-credentials access for this playlist.
- */
-export const fetchSpotifyPlaylistTrackCount = async (playlistId) => {
-  const token = await getSpotifyAuthToken();
-  const res = await fetch(
-    `https://api.spotify.com/v1/playlists/${playlistId}?fields=tracks.total`,
-    { headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } }
-  );
-  const data = await res.json();
-
-  if (data.error) {
-    if (data.error.status === 403) return null;
-    if (data.error.status === 404) {
-      throw new Error('Playlist not found. Check the URL and make sure it is correct.');
-    }
-    throw new Error(`Spotify API error: ${data.error.message}`);
-  }
-
-  return data?.tracks?.total ?? 0;
-};
-
-/**
- * Fetch ALL tracks from a Spotify playlist.
- * Works for any PUBLIC playlist without requiring user login.
- */
-export const fetchSpotifyPlaylist = async (playlistId) => {
-  const token = await getSpotifyAuthToken();
-  const apiHeaders = { Authorization: `Bearer ${token}`, Accept: 'application/json' };
-
-  // Fetch playlist metadata (name, cover, owner etc.)
-  const metaRes = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
-    headers: apiHeaders,
-  });
-  const meta = await metaRes.json();
-  if (meta.error) {
-    if (meta.error.status === 404) {
-      throw new Error('Playlist not found. Check the URL and make sure it is correct.');
-    }
-    if (meta.error.status === 403) {
-      // Client Credentials blocked — silently fall back to embed scraper
-      console.log('  ⚠ Client Credentials 403 on metadata — falling back to embed scraper...');
-      return fetchPlaylistViaEmbedWrapped(playlistId);
-    }
-    throw new Error(`Spotify API error: ${meta.error.message}`);
-=======
 export const getSpotifyEmbedToken = async (playlistId) => {
   const embedUrl = encodeURIComponent(`https://open.spotify.com/embed/playlist/${playlistId}`);
   let lastError;
@@ -165,18 +100,31 @@ export const getSpotifyEmbedToken = async (playlistId) => {
       lastError = err;
     }
   }
-
   throw new Error(`All token extraction methods failed: ${lastError.message}`);
 };
 
 /**
- * Fetch ALL tracks from a Spotify playlist.
- * Strategy 1 (Primary): HTML embed scraper — no API rate-limits, works even when IP banned.
- * Strategy 2 (Bonus): Official API paginator — only attempted if IP is not banned, gets all 675+ tracks.
+ * Get playlist track count.
+ */
+export const fetchSpotifyPlaylistTrackCount = async (playlistId) => {
+  try {
+    const token = await getSpotifyEmbedToken(playlistId);
+    const res = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}?fields=tracks.total`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' }
+    });
+    const data = await res.json();
+    return data?.tracks?.total ?? 0;
+  } catch (e) {
+    return 0;
+  }
+};
+
+/**
+ * Fetch ALL tracks from a Spotify playlist. 
+ * Falls back to HTML scrape if API gets banned/throttled.
  */
 export const fetchSpotifyPlaylist = async (playlistId) => {
-  // --- STRATEGY 1: HTML Embed Scraper (always runs first) ---
-  console.log('  🎵 Spotify: Attempting HTML Embed scrape (ban-proof)...');
+  console.log('  🎵 Spotify: Attempting HTML Embed scrape (ban-proof fallback)...');
   let embedResult;
   try {
     embedResult = await scrapeEmbedPlaylist(playlistId);
@@ -184,13 +132,11 @@ export const fetchSpotifyPlaylist = async (playlistId) => {
     console.warn('  ⚠️ Embed scrape failed:', err.message);
   }
 
-  // Try to boost with the real API (non-blocking)
   console.log('  🔍 Spotify: Extracting anonymous token to check API access...');
   let token;
   try {
     token = await getSpotifyEmbedToken(playlistId);
   } catch (err) {
-    console.warn('  ⚠️ Token extraction failed, returning embed result...');
     if (embedResult) return embedResult;
     throw new Error('Both strategies failed');
   }
@@ -201,98 +147,47 @@ export const fetchSpotifyPlaylist = async (playlistId) => {
     Accept: 'application/json',
   };
 
-<<<<<<< HEAD
-  // Fetch playlist metadata with retry logic for 429
   console.log(`  🎵 Spotify: Fetching metadata for ${playlistId}`);
-  let metaRes, meta;
-  while (true) {
-    metaRes = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}?fields=name,description,owner,images,tracks.total`, {
-      headers: apiHeaders,
-    });
-    
-    if (metaRes.status === 429) {
-      const waitSeconds = metaRes.headers.get('Retry-After') || 5;
-      console.warn(`  ⚠️ Spotify Rate Limit Hit on Metadata! Retrying in ${waitSeconds} seconds...`);
-      await delay(waitSeconds * 1000);
-      continue;
-    }
-    
-    meta = await metaRes.json();
-    if (meta.error) {
-      throw new Error(`Spotify API error: ${meta.error.message}`);
-    }
-    break;
->>>>>>> cc2837f (feat: revert to keyless scanner and add throttle for 675 tracks)
-  }
-
-  // Paginate through ALL tracks
-=======
-  // --- STRATEGY 2: Official API (only if not rate-limited) ---
-  console.log(`  🎵 Spotify: Probing API for ${playlistId}`);
-  const metaRes = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}?fields=name,description,owner,images,tracks.total`, {
+  let metaRes = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}?fields=name,description,owner,images,tracks.total`, {
     headers: apiHeaders,
   });
 
-  if (metaRes.status === 429) {
-    const waitSeconds = metaRes.headers.get('Retry-After') || '?';
-    console.warn(`  ⚠️ API still rate-limited (ban for ${waitSeconds}s). Using embed scrape result (${embedResult?.tracks?.length || 0} tracks).`);
+  if (metaRes.status === 429 || metaRes.status === 403) {
+    console.warn(`  ⚠️ API Rate Limited or Banned. Using embed scrape result.`);
     if (embedResult) return embedResult;
     throw new Error('Rate limited and embed scrape failed');
   }
 
   const meta = await metaRes.json();
   if (meta.error) {
-    console.warn('  ⚠️ API error:', meta.error.message);
     if (embedResult) return embedResult;
-    throw new Error(meta.error.message);
+    throw new Error(`Spotify API error: ${meta.error.message}`);
   }
 
-  // API is accessible! Paginate all tracks
->>>>>>> 310c620 (feat: rotating proxy + embed HTML scraper fallback to bypass IP ban)
   const allTracks = [];
   let offset = 0;
-  let total = null;
+  let total = meta.tracks?.total ?? 0;
 
-<<<<<<< HEAD
-  do {
-=======
   console.log(`  📦 Spotify: Playlist has ${total} tracks. Starting paginated extraction...`);
 
   while (offset < total) {
-    // THROTTLE: Wait 1.5 seconds between requests to bypass rate limiting on huge playlists
-    if (offset > 0) {
-      await delay(1500); 
-    }
+    if (offset > 0) await delay(1500); 
 
->>>>>>> cc2837f (feat: revert to keyless scanner and add throttle for 675 tracks)
     const tracksRes = await fetch(
       `https://api.spotify.com/v1/playlists/${playlistId}/tracks?offset=${offset}&limit=100&fields=total,items(track(id,name,artists,album,duration_ms))`,
       { headers: apiHeaders }
     );
     
-    if (tracksRes.status === 429) {
-      const waitSeconds = tracksRes.headers.get('Retry-After') || 5;
-      console.warn(`  ⚠️ Spotify Rate Limit Hit on Tracks! Applying emergency ${waitSeconds}-second backoff...`);
-      await delay(waitSeconds * 1000);
-      continue; // retry the same offset
+    if (tracksRes.status === 429 || tracksRes.status === 403) {
+      console.warn(`  ⚠️ API Rate Limit Hit during tracks! Breaking loop early.`);
+      break; 
     }
 
     const tracksData = await tracksRes.json();
-
-<<<<<<< HEAD
     if (tracksData.error) {
-      if (tracksData.error.status === 403) {
-        // Tracks endpoint blocked — fall back to embed scraper
-        console.log('  ⚠ Client Credentials 403 on tracks — falling back to embed scraper...');
-        return fetchPlaylistViaEmbedWrapped(playlistId);
-      }
-      throw new Error(`Spotify tracks error: ${tracksData.error.message}`);
+      console.warn(`  ⚠️ Error on tracks chunk: ${tracksData.error.message}`);
+      break;
     }
-
-    if (total === null) total = tracksData.total ?? 0;
-=======
-    if (tracksData.error) throw new Error(`Spotify tracks error: ${tracksData.error.message}`);
->>>>>>> cc2837f (feat: revert to keyless scanner and add throttle for 675 tracks)
 
     for (const item of tracksData.items || []) {
       if (!item?.track?.id) continue;
@@ -308,7 +203,12 @@ export const fetchSpotifyPlaylist = async (playlistId) => {
 
     offset += 100;
     console.log(`  📦 Spotify: fetched ${Math.min(offset, total)} / ${total} tracks`);
-  } while (offset < total);
+  }
+
+  // If we got cut short but standard scraping got everything, return the full standard scrape
+  if (allTracks.length < total && embedResult && embedResult.tracks.length > allTracks.length) {
+    return embedResult;
+  }
 
   return {
     spotifyId: playlistId,
@@ -317,22 +217,6 @@ export const fetchSpotifyPlaylist = async (playlistId) => {
     owner: meta.owner?.display_name || 'Spotify User',
     coverArt: meta.images?.[0]?.url || '',
     totalTracks: allTracks.length,
-    tracks: allTracks,
-  };
-};
-
-/**
- * Wrap the embed service result into the same shape as fetchSpotifyPlaylist.
- */
-const fetchPlaylistViaEmbedWrapped = async (playlistId) => {
-  const result = await fetchPlaylistViaEmbed(playlistId);
-  return {
-    spotifyId: playlistId,
-    name: result.playlistName,
-    description: '',
-    owner: result.owner,
-    coverArt: result.coverArt,
-    totalTracks: result.tracks.length,
-    tracks: result.tracks,
+    tracks: allTracks.length > 0 ? allTracks : (embedResult ? embedResult.tracks : []),
   };
 };
