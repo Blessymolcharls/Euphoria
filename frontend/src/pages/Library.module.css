@@ -1,0 +1,72 @@
+.page {
+  min-height: 100vh;
+  padding: calc(var(--nav-height) + 32px) 24px calc(var(--player-height) + 40px);
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.center {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.heading {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.playlistSection {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.plHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.plInfo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.plCover {
+  width: 60px; height: 60px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.plName {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.plCount {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
