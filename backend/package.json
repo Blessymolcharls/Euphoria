@@ -10,6 +10,7 @@
     "worker": "node src/queue/worker.js"
   },
   "dependencies": {
+    "archiver": "^7.0.1",
     "axios": "^1.6.7",
     "bullmq": "^5.2.0",
     "cheerio": "^1.2.0",

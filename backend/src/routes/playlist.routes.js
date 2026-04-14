@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import {
   parsePlaylist,
   getTracks,
@@ -19,6 +20,21 @@ router.get('/clear', async (req, res) => {
     res.send(`<h1>Cache Cleared!</h1><p>Deleted ${d1.deletedCount} cached playlists and ${d2.deletedCount} cached tracks from Atlas.</p><p>You can now go back and parse your playlist to get all 675 tracks!</p>`);
   } catch (err) {
     res.status(500).send('Error clearing cache: ' + err.message);
+  }
+});
+
+// Delete a playlist and all its tracks
+router.delete('/playlists/:playlistId', async (req, res) => {
+  try {
+    const { playlistId } = req.params;
+    const oid = new mongoose.Types.ObjectId(playlistId);
+    const deletedTracks = await Track.deleteMany({ playlistId: oid });
+    const deletedPlaylist = await Playlist.findByIdAndDelete(oid);
+    console.log(`[DELETE] Playlist ${playlistId}: removed ${deletedTracks.deletedCount} tracks, playlist found: ${!!deletedPlaylist}`);
+    res.json({ success: true, tracksDeleted: deletedTracks.deletedCount });
+  } catch (err) {
+    console.error('[DELETE] Error:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 

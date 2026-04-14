@@ -32,11 +32,11 @@ const runJob = async ({ trackId, playlistName }) => {
   if (!track) return;
 
   try {
-    // Step 1: Search YouTube
+    // Step 1: Search YouTube — returns top 5 candidates ranked by score
     await Track.findByIdAndUpdate(trackId, { status: 'searching' });
-    const match = await findBestYouTubeMatch(track.title, track.artist, track.durationMs);
+    const candidates = await findBestYouTubeMatch(track.title, track.artist, track.durationMs);
 
-    if (!match) {
+    if (!candidates || candidates.length === 0) {
       await Track.findByIdAndUpdate(trackId, {
         status: 'error',
         errorMessage: 'No YouTube match found',
@@ -44,24 +44,39 @@ const runJob = async ({ trackId, playlistName }) => {
       return;
     }
 
-    await Track.findByIdAndUpdate(trackId, {
-      youtubeUrl: match.youtubeUrl,
-      youtubeId: match.videoId,
-      status: 'downloading',
-    });
+    // Step 2: Try each candidate until one downloads successfully
+    let lastError = null;
+    let downloaded = false;
 
-    // Step 2: Download
-    const { filePath, fileName } = await downloadAudio(
-      match.youtubeUrl,
-      playlistName,
-      `${track.artist} - ${track.title}`
-    );
+    for (const match of candidates) {
+      try {
+        await Track.findByIdAndUpdate(trackId, {
+          youtubeUrl: match.youtubeUrl,
+          youtubeId: match.videoId,
+          status: 'downloading',
+        });
 
-    await Track.findByIdAndUpdate(trackId, {
-      filePath,
-      fileName,
-      status: 'done',
-    });
+        const { filePath, fileName } = await downloadAudio(
+          match.youtubeUrl,
+          playlistName,
+          `${track.artist} - ${track.title}`
+        );
+
+        await Track.findByIdAndUpdate(trackId, { filePath, fileName, status: 'done' });
+        downloaded = true;
+        break; // success — stop trying
+      } catch (err) {
+        console.warn(`  ⚠ Candidate failed (${match.videoId}): ${err.message.slice(0, 80)} — trying next...`);
+        lastError = err;
+      }
+    }
+
+    if (!downloaded) {
+      await Track.findByIdAndUpdate(trackId, {
+        status: 'error',
+        errorMessage: lastError?.message || 'All YouTube candidates failed',
+      });
+    }
   } catch (err) {
     await Track.findByIdAndUpdate(trackId, {
       status: 'error',

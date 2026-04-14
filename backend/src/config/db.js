@@ -6,7 +6,7 @@ const connectDB = async () => {
     console.log(`✅ MongoDB connected: ${conn.connection.host}`);
   } catch (error) {
     console.error('❌ MongoDB connection error:', error.message);
-    process.exit(1);
+    // Removed process.exit(1) so Render server stays alive and serves 503 instead of 502
   }
 };
 

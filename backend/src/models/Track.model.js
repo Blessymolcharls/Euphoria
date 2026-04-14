@@ -5,7 +5,7 @@ const trackSchema = new mongoose.Schema(
     playlistId: { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist', required: true },
     spotifyId: { type: String, required: true },
     title: { type: String, required: true },
-    artist: { type: String, required: true },
+    artist: { type: String, default: 'Unknown Artist' },
     album: { type: String, default: '' },
     durationMs: { type: Number, default: 0 },
     albumArt: { type: String, default: '' },

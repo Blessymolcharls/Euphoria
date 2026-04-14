@@ -9,6 +9,7 @@ import styles from './Library.module.css';
 export default function Library() {
   const [playlists, setPlaylists] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState(null);
   const { playTrack } = usePlayer();
 
   useEffect(() => {
@@ -47,48 +48,32 @@ export default function Library() {
         Your <span className="gradient-text">Library</span>
       </motion.h1>
 
-      {playlists.map((pl, pIndex) => (
-        <motion.section
-          key={pl._id}
-          className={`glass-card ${styles.playlistSection}`}
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: pIndex * 0.1 }}
-        >
-          {/* Playlist header */}
-          <div className={styles.plHeader}>
-            <div className={styles.plInfo}>
-              {pl.coverArt && (
-                <img src={pl.coverArt} alt={pl.name} className={styles.plCover} />
+      <div className={styles.playlistList}>
+        {playlists.map((pl, pIndex) => (
+          <motion.div
+            key={pl._id}
+            className={styles.playlistRow}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: pIndex * 0.05 }}
+            onClick={() => window.location.href = `/playlist/${pl._id}`}
+          >
+            <div className={styles.plCoverContainer}>
+              {pl.coverArt ? (
+                <img src={pl.coverArt} alt={pl.name} className={styles.plCoverImage} />
+              ) : (
+                <div className={styles.plCoverPlaceholder}>
+                  <MdLibraryMusic size={24} color="#555" />
+                </div>
               )}
-              <div>
-                <h2 className={styles.plName}>{pl.name}</h2>
-                <p className={styles.plCount}>{pl.trackCount} tracks</p>
-              </div>
             </div>
-            <button
-              className="btn-primary"
-              onClick={() => playTrack(pl.tracks, 0)}
-              id={`play-${pl._id}`}
-            >
-              <MdPlayCircle size={20} /> Play All
-            </button>
-          </div>
-
-          {/* Tracks */}
-          <div className={styles.tracks}>
-            {pl.tracks.map((track, i) => (
-              <TrackCard
-                key={track._id}
-                track={track}
-                index={i}
-                allTracks={pl.tracks}
-                onDownload={() => {}}
-              />
-            ))}
-          </div>
-        </motion.section>
-      ))}
+            <div className={styles.plDetails}>
+              <h3 className={styles.plTitle}>{pl.name}</h3>
+              <p className={styles.plSubtitle}>Playlist • {pl.trackCount} songs</p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 }

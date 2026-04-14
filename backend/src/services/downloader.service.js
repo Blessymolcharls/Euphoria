@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 import { fileURLToPath } from 'url';
 import ytDlpExec from 'yt-dlp-exec';
 import ffmpegPath from 'ffmpeg-static';
@@ -9,13 +10,12 @@ const __dirname = path.dirname(__filename);
 
 /**
  * Download audio from a YouTube URL using bundled yt-dlp-exec + ffmpeg-static.
- * No system-level installations needed.
- * Saves as MP3 to: /downloads/{playlistSlug}/{safeTitle}.mp3
+ * Saves as MP3 to: {User/Music}/Euphoria/{playlistSlug}/{safeTitle}.mp3
  */
 export const downloadAudio = async (youtubeUrl, playlistName, trackTitle) => {
   const downloadsRoot = process.env.DOWNLOADS_DIR
     ? path.resolve(process.env.DOWNLOADS_DIR)
-    : path.join(__dirname, '../../../downloads');
+    : path.join(os.homedir(), 'Music', 'Euphoria');
 
   const playlistSlug = sanitize(playlistName);
   const trackSlug = sanitize(trackTitle);

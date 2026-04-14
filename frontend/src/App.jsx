@@ -5,6 +5,7 @@ import AudioPlayer from './components/AudioPlayer/AudioPlayer';
 import Home from './pages/Home';
 import PlaylistPage from './pages/Playlist';
 import Library from './pages/Library';
+import About from './pages/About';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/playlist/:playlistId" element={<PlaylistPage />} />
           <Route path="/library" element={<Library />} />
+          <Route path="/about" element={<About />} />
         </Routes>
         <AudioPlayer />
       </BrowserRouter>

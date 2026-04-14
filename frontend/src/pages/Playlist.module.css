@@ -1,8 +1,7 @@
 .page {
   min-height: 100vh;
   padding: calc(var(--nav-height) + 32px) 24px calc(var(--player-height) + 40px);
-  max-width: 900px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .center {
@@ -15,9 +14,12 @@
 .header {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  margin-bottom: 32px;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
 }
+
+
 
 .playlistInfo {
   display: flex;
@@ -26,50 +28,107 @@
 }
 
 .cover {
-  width: 100px;
-  height: 100px;
-  border-radius: var(--radius);
+  width: 64px;
+  height: 64px;
+  border-radius: 0;
   object-fit: cover;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
   flex-shrink: 0;
+  transition: border-color 0.3s;
+}
+.cover:hover {
+  border-color: #ff0b22;
 }
 
 .ownerLabel {
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   margin-bottom: 4px;
 }
 
 .playlistName {
-  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-size: clamp(1rem, 2vw, 1.4rem);
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
 .stats {
   margin-top: 6px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
+  letter-spacing: 0.04em;
 }
 
-.progressBar {
-  height: 4px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 99px;
-  margin-bottom: 28px;
+.matrixContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  margin: 48px 0;
+}
+
+.matrixLinesBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.matrixLine {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.matrixLineLong { width: 100%; }
+.matrixLineMed { width: 90%; }
+.matrixLineShort { width: 20%; background: rgba(255, 255, 255, 0.4); }
+
+.matrixProgressTrack {
+  width: 60%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
 
-.progressFill {
+.matrixProgressFill {
   height: 100%;
-  background: var(--accent-gradient);
-  border-radius: 99px;
+  background: #ff0b22;
+}
+
+.matrixTextRow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.matrixText {
+  font-family: var(--font-dot);
+  font-size: 1.8rem;
+  letter-spacing: 0.3em;
+  color: white;
+  text-transform: uppercase;
+  text-shadow: 0px 0px 20px rgba(255, 11, 34, 0.6), 0px 0px 40px rgba(255, 11, 34, 0.2); 
+}
+
+.matrixDots {
+  display: flex;
+  gap: 12px;
+}
+
+.matrixDot {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .trackList {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-auto-rows: 140px;
+  grid-auto-flow: dense;
   gap: 4px;
 }

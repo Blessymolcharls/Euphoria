@@ -1,0 +1,22 @@
+﻿Embed page status: 200 | length: 6284
+
+Script chunks found: 14
+ - https://embed-cdn.spotifycdn.com/_next/static/chunks/polyfills-42372ed130431b0a.js
+ - https://embed-cdn.spotifycdn.com/_next/static/chunks/webpack-d9d3dd429211e803.js
+ - https://embed-cdn.spotifycdn.com/_next/static/chunks/framework-620f5a608de00ff5.js
+ - https://embed-cdn.spotifycdn.com/_next/static/chunks/main-61f68518ce308f4c.js
+ - https://embed-cdn.spotifycdn.com/_next/static/chunks/pages/_app-b2443029fac88b23.js
+ - https://embed-cdn.spotifycdn.com/_next/static/chunks/6ed1c7d2-38238716899ac8aa.js
+ - https://embed-cdn.spotifycdn.com/_next/static/chunks/956ba4ca-2e2abba664776fd6.js
+ - https://embed-cdn.spotifycdn.com/_next/static/chunks/6949-9bc20321f1d6c127.js
+ - https://embed-cdn.spotifycdn.com/_next/static/chunks/4439-2961e3481bb14a91.js
+ - https://embed-cdn.spotifycdn.com/_next/static/chunks/9582-f2b23b40d345b975.js
+ - https://embed-cdn.spotifycdn.com/_next/static/chunks/9029-be3ddc7f2f6908fe.js
+ - https://embed-cdn.spotifycdn.com/_next/static/chunks/pages/playlist/%5Bid%5D-d9c6cb96021ec79a.js
+ - https://embed-cdn.spotifycdn.com/_next/static/493dc869-a12f-480a-8111-0a9118f18c1f/_buildManifest.js
+ - https://embed-cdn.spotifycdn.com/_next/static/493dc869-a12f-480a-8111-0a9118f18c1f/_ssgManifest.js
+
+Client ID in HTML: not found
+
+HTML snippet around scripts:
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width" data-next-head=""/><title data-next-head=""></title><link rel="icon" href="/favicon.ico" data-next-head=""/><link rel="preload" href="https://embed-cdn.spotifycdn.com/_next/static/css/1da87d2646b9222b.css" as="style"/><link rel="preload" href="https://embed-cdn.spotifycdn.com/_next/static/css/ebfbc4045f336cfb.css" as="style"/><link rel="preload" href="https://embed-cdn

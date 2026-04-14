@@ -16,12 +16,22 @@ export const startDownload = async (req, res) => {
     const playlist = await Playlist.findById(playlistId);
     if (!playlist) return res.status(404).json({ error: 'Playlist not found' });
 
-    // Find tracks to download
-    const query = { playlistId };
-    if (trackIds?.length) query._id = { $in: trackIds };
-    else query.status = 'pending'; // only pending ones
+    // Find tracks to download — pending ones, plus errored ones for retry
+    let tracks;
+    if (trackIds?.length) {
+      tracks = await Track.find({ playlistId, _id: { $in: trackIds } });
+    } else {
+      tracks = await Track.find({ playlistId, status: { $in: ['pending', 'error'] } });
+    }
 
-    const tracks = await Track.find(query);
+    // Reset errored tracks back to pending so the queue can process them
+    const errorIds = tracks.filter((t) => t.status === 'error').map((t) => t._id);
+    if (errorIds.length) {
+      await Track.updateMany(
+        { _id: { $in: errorIds } },
+        { $set: { status: 'pending', errorMessage: '', youtubeUrl: '', youtubeId: '' } }
+      );
+    }
     if (!tracks.length) {
       return res.json({ message: 'No tracks to download', queued: 0 });
     }
@@ -64,28 +74,34 @@ export const getJobStatus = async (req, res) => {
 
 /**
  * GET /api/library
- * Returns all downloaded tracks grouped by playlist.
+ * Returns all downloaded tracks grouped by playlist, Strictly checked against the OS Music folder.
  */
 export const getLibrary = async (req, res) => {
   try {
     const playlists = await Playlist.find().populate({
       path: 'tracks',
       match: { status: 'done' },
-      select: 'title artist album albumArt durationMs fileName status',
+      select: 'title artist album albumArt durationMs fileName filePath status',
     });
 
     const result = playlists
       .filter((p) => p.tracks.length > 0)
-      .map((p) => ({
-        _id: p._id,
-        name: p.name,
-        coverArt: p.coverArt,
-        trackCount: p.tracks.length,
-        tracks: p.tracks.map((t) => ({
-          ...t.toObject(),
-          streamUrl: `/api/stream/${t._id}`,
-        })),
-      }));
+      .map((p) => {
+        // Physical OS file check override! Only map if it's strictly in the Music folder.
+        const validTracks = p.tracks.filter(t => t.filePath && fs.existsSync(t.filePath));
+        
+        return {
+          _id: p._id,
+          name: p.name,
+          coverArt: p.coverArt,
+          trackCount: validTracks.length,
+          tracks: validTracks.map((t) => ({
+            ...t.toObject(),
+            streamUrl: `/api/stream/${t._id}`,
+          })),
+        };
+      })
+      .filter((p) => p.trackCount > 0);
 
     res.json(result);
   } catch (err) {
@@ -134,6 +150,28 @@ export const streamTrack = async (req, res) => {
       });
       fs.createReadStream(filePath).pipe(res);
     }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/**
+ * GET /api/download-file/:trackId
+ * Downloads the actual MP3 file through the browser.
+ */
+export const downloadFile = async (req, res) => {
+  try {
+    const track = await Track.findById(req.params.trackId).select('filePath status fileName');
+    if (!track || track.status !== 'done') {
+      return res.status(404).json({ error: 'Track not available' });
+    }
+
+    const filePath = track.filePath;
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'File not found on disk' });
+    }
+
+    res.download(filePath, track.fileName || 'track.mp3');
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

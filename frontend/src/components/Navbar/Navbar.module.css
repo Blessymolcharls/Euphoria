@@ -5,46 +5,116 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
-  background: rgba(7, 7, 26, 0.7);
+  padding: 0 32px;
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   z-index: 100;
 }
 
 .logo {
-  font-size: 1.4rem;
+  font-size: 1rem;
+  font-family: var(--font-dot);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.searchContainer {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 480px;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.5);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.searchContainer:focus-within {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.08);
+}
+
+.searchIcon {
+  padding: 0 4px 0 12px;
+  color: rgba(255,255,255,0.3);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.searchBox {
+  flex: 1;
+  padding: 8px 16px 8px 4px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-family: var(--font-dot);
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  outline: none;
+}
+
+.searchBox:focus {
+  outline: none;
+}
+
+.logoDot {
+  width: 8px;
+  height: 8px;
+  background: #ff0b22;
+  border-radius: 50%;
+  animation: logoPulse 2s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
 }
 
 .links {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
 }
 
 .link {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 14px;
-  color: var(--text-secondary);
-  border-radius: var(--radius-sm);
-  font-weight: 500;
-  font-size: 0.9rem;
-  transition: color 0.2s;
+  gap: 8px;
+  padding: 10px 20px;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 0.2s, background 0.2s;
+  border: 1px solid transparent;
 }
-.link:hover { color: var(--text-primary); }
-.link.active { color: var(--text-primary); }
+.link:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+.link.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
 
 .underline {
   position: absolute;
   bottom: -1px;
   left: 0; right: 0;
   height: 2px;
-  background: var(--accent-gradient);
-  border-radius: 99px;
+  background: #ff0b22;
 }

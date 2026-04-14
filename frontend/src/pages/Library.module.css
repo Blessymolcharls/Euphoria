@@ -1,8 +1,7 @@
 .page {
   min-height: 100vh;
   padding: calc(var(--nav-height) + 32px) 24px calc(var(--player-height) + 40px);
-  max-width: 900px;
-  margin: 0 auto;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 28px;
@@ -23,50 +22,68 @@
 .heading {
   font-size: clamp(1.6rem, 3vw, 2.2rem);
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.playlistSection {
-  padding: 20px;
+.playlistList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+.playlistRow {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s;
+  cursor: pointer;
+  border-radius: 0;
 }
 
-.plHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
+.playlistRow:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-4px);
+  border-color: rgba(255,255,255,0.2);
 }
 
-.plInfo {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.plCover {
-  width: 60px; height: 60px;
-  border-radius: var(--radius-sm);
-  object-fit: cover;
+.plCoverContainer {
+  width: 100%;
+  aspect-ratio: 1/1;
+  height: auto;
   flex-shrink: 0;
+  border-radius: 0;
+  overflow: hidden;
+  background: #111;
 }
 
-.plName {
-  font-size: 1.1rem;
-  font-weight: 600;
+.plCoverImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.plCount {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-top: 3px;
-}
-
-.tracks {
+.plDetails {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+}
+
+.plTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.plSubtitle {
+  font-size: 0.85rem;
+  color: #a0a0a0;
+  margin: 0;
 }

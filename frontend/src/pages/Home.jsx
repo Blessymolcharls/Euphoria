@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { MdMusicNote, MdAutoAwesome } from 'react-icons/md';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MdAutoAwesome, MdOfflineBolt, MdDevices, MdHighQuality } from 'react-icons/md';
 import { SiSpotify } from 'react-icons/si';
 import api from '../api/client';
 import styles from './Home.module.css';
@@ -10,7 +10,16 @@ export default function Home() {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
+
+  const handleMouseMove = (e) => {
+    const x = e.clientX;
+    const y = e.clientY;
+    const px = (x / window.innerWidth - 0.5) * 100; // -50 to 50
+    const py = (y / window.innerHeight - 0.5) * 100;
+    setMousePos({ x, y, px, py });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,104 +30,187 @@ export default function Home() {
       const res = await api.post('/parse-playlist', { url: url.trim() });
       navigate(`/playlist/${res.data.playlistId}`, { state: res.data });
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to parse playlist. Check your Spotify URL.');
-    } finally {
+      const backendMsg = err.response?.data?.error || err.response?.data?.message;
+      setError(backendMsg || 'Failed to connect to the server. Is the backend running?');
       setLoading(false);
     }
   };
 
   return (
-    <div className={styles.page}>
-      {/* Floating particles */}
-      <div className={styles.particles}>
-        {[...Array(12)].map((_, i) => (
+    <div 
+      className={styles.page} 
+      onMouseMove={handleMouseMove}
+      style={{ 
+        '--mouse-x': `${mousePos.x}px`, 
+        '--mouse-y': `${mousePos.y}px`,
+        '--px': mousePos.px,
+        '--py': mousePos.py
+      }}
+    >
+      <div className={styles.background} />
+      <div className={styles.interactiveGlow} />
+
+      <AnimatePresence mode="wait">
+        {!loading ? (
           <motion.div
-            key={i}
-            className={styles.particle}
-            animate={{ y: [-20, 20, -20], x: [-10, 10, -10] }}
-            transition={{ duration: 4 + i * 0.5, repeat: Infinity, ease: 'easeInOut', delay: i * 0.3 }}
-            style={{ left: `${8 + i * 8}%`, top: `${15 + (i % 5) * 16}%`, opacity: 0.15 + (i % 3) * 0.07 }}
-          />
-        ))}
-      </div>
-
-      <motion.div
-        className={styles.hero}
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: 'easeOut' }}
-      >
-        {/* Badge */}
-        <motion.div
-          className={styles.badge}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <MdAutoAwesome size={14} />
-          <span>Spotify • YouTube • Offline</span>
-        </motion.div>
-
-        <h1 className={styles.headline}>
-          Your playlists,<br />
-          <span className="gradient-text">offline forever.</span>
-        </h1>
-        <p className={styles.sub}>
-          Paste a Spotify playlist link. We extract the tracks, find the best audio match on YouTube, and download them to your library.
-        </p>
-
-        {/* Input form */}
-        <motion.form
-          className={styles.form}
-          onSubmit={handleSubmit}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <div className={styles.inputWrapper}>
-            <SiSpotify className={styles.spotifyIcon} size={22} color="#1db954" />
-            <input
-              id="playlist-url"
-              className={styles.input}
-              type="url"
-              placeholder="https://open.spotify.com/playlist/..."
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              required
-            />
-          </div>
-          <button
-            id="parse-btn"
-            className="btn-primary"
-            type="submit"
-            disabled={loading}
+            key="formState"
+            className={styles.hero}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+            transition={{ duration: 0.6, type: "spring", bounce: 0.3 }}
           >
-            {loading ? <><span className="spinner" />Parsing...</> : <><MdMusicNote size={18} />Parse Playlist</>}
-          </button>
-        </motion.form>
+            <h1 className={styles.headline}>
+              Redefining Local,<br />
+              Music Streaming.
+            </h1>
+            <p className={styles.sub}>
+              Paste any public Spotify playlist. We parse it, fetch high-quality local MP3s natively, and serve it via an immersive dark matrix player.
+            </p>
 
-        {error && (
-          <motion.p
-            className={styles.error}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            <motion.form
+              className={styles.form}
+              onSubmit={handleSubmit}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <div className={styles.inputWrapper}>
+                <SiSpotify className={styles.spotifyIcon} size={24} color="#1db954" />
+                <input
+                  id="playlist-url"
+                  className={styles.input}
+                  type="text"
+                  placeholder="Paste Spotify Playlist URL..."
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck="false"
+                  required
+                />
+              </div>
+              <button id="parse-btn" className={styles.parseBtn} type="submit" disabled={loading}>
+                Generate Tiles
+              </button>
+            </motion.form>
+
+            {error && (
+              <motion.p className={styles.error} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+                {error}
+              </motion.p>
+            )}
+
+            <motion.div
+              className={styles.tileGrid}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <div className={styles.featureTile}>
+                <SiSpotify size={24} color="#fff" />
+                <span>Any Public<br/>Playlist</span>
+              </div>
+              <div className={styles.featureTile}>
+                <MdHighQuality size={28} color="#fff" />
+                <span>Smart HD<br/>Matching</span>
+              </div>
+              <div className={styles.featureTile}>
+                <MdOfflineBolt size={28} color="#fff" />
+                <span>Local OS<br/>Downloads</span>
+              </div>
+              <div className={styles.featureTile}>
+                <MdDevices size={26} color="#fff" />
+                <span>Zero Ads<br/>Pure Player</span>
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="loadingState"
+            className={styles.hero}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.2 }}
+            transition={{ duration: 0.5 }}
+            style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              minHeight: '400px',
+              border: '1px solid rgba(255,255,255,0.08)',
+              background: '#000000',
+              gap: '32px'
+            }}
           >
-            {error}
-          </motion.p>
+            {/* Dotted Progression Bar */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {Array.from({ length: 24 }).map((_, i) => (
+                  <div key={i} style={{ position: 'relative' }}>
+                    {/* Dim dot (track) */}
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.15)' }} />
+                    {/* Active dot (animated) */}
+                    <motion.div
+                      animate={{ opacity: [0, 1, 0] }}
+                      transition={{ 
+                        duration: 1.5, 
+                        repeat: Infinity, 
+                        delay: i * 0.05,
+                        ease: "linear"
+                      }}
+                      style={{ position: 'absolute', top: 0, left: 0, width: '6px', height: '6px', borderRadius: '50%', background: '#ffffff' }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Glitching text */}
+            <div style={{ position: 'relative', overflow: 'hidden' }}>
+              <motion.h2
+                animate={{ opacity: [1, 0.3, 1, 0.7, 1] }}
+                transition={{ repeat: Infinity, duration: 2, ease: "steps(5)" }}
+                style={{ 
+                  fontSize: '1.4rem',
+                  letterSpacing: '0.2em', 
+                  textTransform: 'uppercase',
+                  fontWeight: 700,
+                  fontFamily: 'var(--font-dot)',
+                  color: '#ffffff'
+                }}
+              >
+                FETCHING SONGS
+              </motion.h2>
+              <motion.div
+                animate={{ x: [-200, 200] }}
+                transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
+                style={{
+                  position: 'absolute',
+                  top: 0, left: 0, right: 0, bottom: 0,
+                  background: 'linear-gradient(90deg, transparent, rgba(255,11,34,0.15), transparent)',
+                  width: '60px',
+                  pointerEvents: 'none',
+                }}
+              />
+            </div>
+
+            {/* Counter dots */}
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {[0, 1, 2].map(i => (
+                <motion.div
+                  key={i}
+                  animate={{ opacity: [0.2, 1, 0.2] }}
+                  transition={{ repeat: Infinity, duration: 1.2, delay: i * 0.3 }}
+                  style={{ width: 6, height: 6, background: '#ffffff' }}
+                />
+              ))}
+            </div>
+          </motion.div>
         )}
-
-        {/* Feature pills */}
-        <motion.div
-          className={styles.features}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
-          {['Spotify metadata', 'Smart YouTube matching', 'MP3 downloads', 'Built-in player'].map((f) => (
-            <span key={f} className={styles.pill}>{f}</span>
-          ))}
-        </motion.div>
-      </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

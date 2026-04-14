@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import connectDB from './src/config/db.js';
 import playlistRoutes from './src/routes/playlist.routes.js';
 import downloadRoutes from './src/routes/download.routes.js';
+import authRoutes from './src/routes/auth.routes.js';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
 // Routes
 app.use('/api', playlistRoutes);
 app.use('/api', downloadRoutes);
+app.use('/api/auth', authRoutes);
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'ok', app: 'Euphoria' }));

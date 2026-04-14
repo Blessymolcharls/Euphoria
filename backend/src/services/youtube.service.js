@@ -49,7 +49,7 @@ export const findBestYouTubeMatch = async (title, artist, durationMs) => {
     };
   });
 
-  // Return top scoring result
+  // Return top-N scoring results for fallback retries
   scored.sort((a, b) => b.score - a.score);
-  return scored[0] || null;
+  return scored.slice(0, 5); // top 5 candidates
 };

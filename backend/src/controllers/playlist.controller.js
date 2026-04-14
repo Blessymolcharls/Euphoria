@@ -1,6 +1,10 @@
 import Playlist from '../models/Playlist.model.js';
 import Track from '../models/Track.model.js';
-import { fetchSpotifyPlaylist, extractPlaylistId } from '../services/spotify.service.js';
+import {
+  fetchSpotifyPlaylist,
+  extractPlaylistId,
+  fetchSpotifyPlaylistTrackCount,
+} from '../services/spotify.service.js';
 
 /**
  * POST /api/parse-playlist
@@ -13,17 +17,37 @@ export const parsePlaylist = async (req, res) => {
 
     const spotifyId = extractPlaylistId(url);
 
-    // Check if already exists
+    // Check if already cached in DB
     let playlist = await Playlist.findOne({ spotifyId }).populate('tracks');
-    if (playlist) {
-      return res.json({
-        message: 'Playlist already parsed',
-        playlistId: playlist._id,
-        name: playlist.name,
-        coverArt: playlist.coverArt,
-        totalTracks: playlist.totalTracks,
-        tracks: playlist.tracks,
-      });
+    if (playlist && playlist.tracks.length > 0) {
+      // Validate cached size so old 100-track caches are auto-refreshed.
+      const spotifyTrackCount = await fetchSpotifyPlaylistTrackCount(spotifyId);
+      const cachedTrackCount = playlist.tracks.length;
+
+      // When Spotify returns null (403 in client credentials mode), keep cache.
+      if (spotifyTrackCount === null || cachedTrackCount >= spotifyTrackCount) {
+        return res.json({
+          message: 'Playlist already parsed',
+          playlistId: playlist._id,
+          name: playlist.name,
+          coverArt: playlist.coverArt,
+          owner: playlist.owner,
+          totalTracks: playlist.totalTracks,
+          tracks: playlist.tracks,
+        });
+      }
+
+      // Cached playlist is incomplete, so rebuild it.
+      await Track.deleteMany({ playlistId: playlist._id });
+      await Playlist.findByIdAndDelete(playlist._id);
+      playlist = null;
+    }
+
+    // If a broken/empty playlist exists in DB, delete it so we can re-fetch cleanly
+    if (playlist && playlist.tracks.length === 0) {
+      await Track.deleteMany({ playlistId: playlist._id });
+      await Playlist.findByIdAndDelete(playlist._id);
+      playlist = null;
     }
 
     // Fetch from Spotify
@@ -40,22 +64,20 @@ export const parsePlaylist = async (req, res) => {
     });
     await playlist.save();
 
-    // Save tracks
-    const trackDocs = await Promise.all(
-      data.tracks.map((t) =>
-        Track.create({
-          playlistId: playlist._id,
-          spotifyId: t.spotifyId,
-          title: t.title,
-          artist: t.artist,
-          album: t.album,
-          albumArt: t.albumArt,
-          durationMs: t.durationMs,
-        })
-      )
-    );
+    // Save tracks in bulk (insertMany is far more efficient than one-by-one create)
+    const trackPayloads = data.tracks.map((t) => ({
+      playlistId: playlist._id,
+      spotifyId: t.spotifyId,
+      title: t.title,
+      artist: t.artist,
+      album: t.album,
+      albumArt: t.albumArt,
+      durationMs: t.durationMs,
+    }));
 
-    playlist.tracks = trackDocs.map((t) => t._id);
+    const inserted = await Track.insertMany(trackPayloads, { ordered: false });
+
+    playlist.tracks = inserted.map((t) => t._id);
     await playlist.save();
 
     res.json({
@@ -65,11 +87,13 @@ export const parsePlaylist = async (req, res) => {
       owner: playlist.owner,
       description: playlist.description,
       totalTracks: playlist.totalTracks,
-      tracks: trackDocs,
+      tracks: inserted,
     });
   } catch (err) {
     console.error('parsePlaylist error:', err.message);
-    res.status(500).json({ error: err.message });
+    // Use 400 for user-facing Spotify errors, 500 for internal issues
+    const status = err.message.includes('private') || err.message.includes('denied') || err.message.includes('not found') ? 400 : 500;
+    res.status(status).json({ error: err.message });
   }
 };
 

@@ -20,6 +20,18 @@ export const PlayerProvider = ({ children }) => {
     setProgress(0);
   }, []);
 
+  const addToQueue = useCallback((track) => {
+    setQueue((prevQueue) => {
+      // If queue is empty, implicitly play the track
+      if (prevQueue.length === 0) {
+        setIsPlaying(true);
+        setCurrentIndex(0);
+        return [track];
+      }
+      return [...prevQueue, track];
+    });
+  }, []);
+
   const togglePlay = () => {
     if (!audioRef.current) return;
     if (isPlaying) audioRef.current.pause();
@@ -68,6 +80,7 @@ export const PlayerProvider = ({ children }) => {
         volume,
         audioRef,
         playTrack,
+        addToQueue,
         togglePlay,
         next,
         prev,
