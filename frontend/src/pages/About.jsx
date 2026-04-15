@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import DotText from '../components/DotMatrix/DotText';
+import DOT_PRESETS from '../components/DotMatrix/dotPresets';
 import styles from './About.module.css';
 
 // Interactive 3D Tilt Card
@@ -45,8 +47,19 @@ function TiltFeatureCard({ feature, idx }) {
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.7, delay: idx * 0.15, type: "spring", stiffness: 80 }}
     >
-      <span style={{ transform: "translateZ(30px)" }}>{feature.num}</span>
-      <h3 style={{ transform: "translateZ(20px)" }}>{feature.text}</h3>
+      <DotText
+        text={feature.num}
+        {...DOT_PRESETS.subheading}
+        animated={false}
+        color="rgba(255,255,255,0.35)"
+        style={{ transform: 'translateZ(30px)' }}
+      />
+      <DotText
+        text={feature.text}
+        {...DOT_PRESETS.subheading}
+        animated={false}
+        style={{ transform: 'translateZ(20px)' }}
+      />
     </motion.div>
   );
 }
@@ -112,7 +125,12 @@ export default function About() {
               }}
               style={{ perspective: 1000 }}
             >
-              <h1 className={styles.heading}>ABOUT</h1>
+              <DotText
+                text="ABOUT"
+                {...DOT_PRESETS.hero}
+                animated
+                className={styles.heading}
+              />
               <div className={styles.divider}></div>
             </motion.div>
 
@@ -158,7 +176,13 @@ export default function About() {
             transition={{ duration: 0.6 }}
             style={{ marginBottom: 40 }}
           >
-            <h2 className={styles.heading} style={{ fontSize: 'clamp(2rem, 5vw, 4rem)' }}>CORE PILLARS</h2>
+            <DotText
+              text="CORE PILLARS"
+              {...DOT_PRESETS.heading}
+              animated={false}
+              pulse
+              className={styles.heading}
+            />
             <div className={styles.divider} style={{ width: 80, height: 3 }}></div>
           </motion.div>
 
@@ -175,7 +199,12 @@ export default function About() {
             transition={{ duration: 0.8, delay: 0.3 }}
             style={{ marginTop: 80, display: 'flex', flexDirection: 'column', gap: 24 }}
           >
-            <h2 className={styles.heading} style={{ fontSize: 'clamp(2rem, 5vw, 4rem)' }}>DESIGN PHILOSOPHY</h2>
+            <DotText
+              text="DESIGN PHILOSOPHY"
+              {...DOT_PRESETS.heading}
+              animated={false}
+              className={styles.heading}
+            />
             <div className={styles.divider} style={{ width: 80, height: 3 }}></div>
             <p className={styles.text} style={{ fontSize: '1rem', opacity: 0.6 }}>
               EVERY ELEMENT IN EUPHORIA HAS BEEN CRAFTED FROM THE GROUND UP TO OBEY

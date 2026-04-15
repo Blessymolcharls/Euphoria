@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import PlaylistPage from './pages/Playlist';
 import Library from './pages/Library';
 import About from './pages/About';
+import DotTypography from './pages/DotTypography';
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/playlist/:playlistId" element={<PlaylistPage />} />
           <Route path="/library" element={<Library />} />
           <Route path="/about" element={<About />} />
+          <Route path="/typography" element={<DotTypography />} />
         </Routes>
         <AudioPlayer />
       </BrowserRouter>

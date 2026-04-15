@@ -14,14 +14,15 @@
 }
 
 .logo {
-  font-size: 1rem;
+  /* font-size irrelevant — logo is now SVG dot-matrix */
   font-family: var(--font-dot);
   font-weight: 400;
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   text-transform: uppercase;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  line-height: 0;
 }
 
 .searchContainer {

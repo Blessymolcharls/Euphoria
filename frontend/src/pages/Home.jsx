@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MdAutoAwesome, MdOfflineBolt, MdDevices, MdHighQuality } from 'react-icons/md';
 import { SiSpotify } from 'react-icons/si';
 import api from '../api/client';
+import DotText from '../components/DotMatrix/DotText';
+import DOT_PRESETS from '../components/DotMatrix/dotPresets';
 import styles from './Home.module.css';
 
 export default function Home() {
@@ -60,9 +62,18 @@ export default function Home() {
             exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
             transition={{ duration: 0.6, type: "spring", bounce: 0.3 }}
           >
-            <h1 className={styles.headline}>
-              Redefining Local,<br />
-              Music Streaming.
+            <h1 className={styles.headline} aria-label="Redefining Local Music Streaming">
+              <DotText
+                text="REDEFINING LOCAL"
+                {...DOT_PRESETS.hero}
+                animated
+                style={{ marginBottom: '10px' }}
+              />
+              <DotText
+                text="MUSIC STREAMING"
+                {...DOT_PRESETS.hero}
+                animated
+              />
             </h1>
             <p className={styles.sub}>
               Paste any public Spotify playlist. We parse it, fetch high-quality local MP3s natively, and serve it via an immersive dark matrix player.
@@ -110,19 +121,19 @@ export default function Home() {
             >
               <div className={styles.featureTile}>
                 <SiSpotify size={24} color="#fff" />
-                <span>Any Public<br/>Playlist</span>
+                <DotText text="ANY PLAYLIST" {...DOT_PRESETS.small} animated={false} />
               </div>
               <div className={styles.featureTile}>
                 <MdHighQuality size={28} color="#fff" />
-                <span>Smart HD<br/>Matching</span>
+                <DotText text="SMART HD" {...DOT_PRESETS.small} animated={false} />
               </div>
               <div className={styles.featureTile}>
                 <MdOfflineBolt size={28} color="#fff" />
-                <span>Local OS<br/>Downloads</span>
+                <DotText text="LOCAL DL" {...DOT_PRESETS.small} animated={false} />
               </div>
               <div className={styles.featureTile}>
                 <MdDevices size={26} color="#fff" />
-                <span>Zero Ads<br/>Pure Player</span>
+                <DotText text="ZERO ADS" {...DOT_PRESETS.small} animated={false} />
               </div>
             </motion.div>
           </motion.div>

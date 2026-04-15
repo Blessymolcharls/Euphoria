@@ -1,6 +1,8 @@
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MdLibraryMusic, MdHome, MdInfoOutline, MdSearch } from 'react-icons/md';
+import DotText from '../DotMatrix/DotText';
+import DOT_PRESETS from '../DotMatrix/dotPresets';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
@@ -16,9 +18,15 @@ export default function Navbar() {
 
   return (
     <nav className={styles.nav}>
-      <Link to="/" className={styles.logo}>
+      <Link to="/" className={styles.logo} aria-label="Euphoria home">
         <div className={styles.logoDot} />
-        <span>EUPHORIA</span>
+        <DotText
+          text="EUPHORIA"
+          {...DOT_PRESETS.logo}
+          animated={false}
+          offOpacity={0.05}
+          style={{ gap: '3px' }}
+        />
       </Link>
 
       <div className={styles.searchContainer}>

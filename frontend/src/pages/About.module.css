@@ -79,14 +79,12 @@
 }
 
 .heading {
-  font-family: var(--font-dot);
-  font-size: clamp(4rem, 10vw, 8rem);
-  font-weight: 400;
+  /* Content is now SVG dot-matrix — font-size has no effect */
+  display: flex;
+  align-items: flex-start;
   color: #ffffff;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  margin-bottom: -16px;
-  text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+  margin-bottom: -8px;
+  filter: drop-shadow(0 0 24px rgba(255, 255, 255, 0.12));
 }
 
 .divider {
@@ -174,17 +172,8 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
 }
 
-.featureItem span {
-  font-family: var(--font-dot);
-  font-size: 2.5rem;
-  color: #ff0b22;
-  text-shadow: 0 0 20px rgba(255, 11, 34, 0.3);
-}
-
-.featureItem h3 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+/* DotText replaces span and h3 — gap/flex handles layout */
+.featureItem .dot-text {
+  overflow: visible;
+  flex-shrink: 0;
 }

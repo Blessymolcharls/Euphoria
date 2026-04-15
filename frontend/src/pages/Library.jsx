@@ -4,6 +4,8 @@ import { MdLibraryMusic, MdPlayCircle } from 'react-icons/md';
 import api from '../api/client';
 import { usePlayer } from '../context/PlayerContext';
 import TrackCard from '../components/TrackCard/TrackCard';
+import DotText from '../components/DotMatrix/DotText';
+import DOT_PRESETS from '../components/DotMatrix/dotPresets';
 import styles from './Library.module.css';
 
 export default function Library() {
@@ -40,13 +42,20 @@ export default function Library() {
 
   return (
     <div className={styles.page}>
-      <motion.h1
+      <motion.div
         className={styles.heading}
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
+        role="heading"
+        aria-level="1"
+        aria-label="Your Library"
       >
-        Your <span className="gradient-text">Library</span>
-      </motion.h1>
+        <DotText
+          text="YOUR LIBRARY"
+          {...DOT_PRESETS.heading}
+          animated
+        />
+      </motion.div>
 
       <div className={styles.playlistList}>
         {playlists.map((pl, pIndex) => (

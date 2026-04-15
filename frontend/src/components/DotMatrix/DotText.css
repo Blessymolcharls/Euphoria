@@ -1,0 +1,83 @@
+/* ─────────────────────────────────────────────
+   DotText.css — Nothing OS Dot-Matrix Typography
+   ───────────────────────────────────────────── */
+
+/* ── Container to absorb scaling bounds and prevent overflow ── */
+.dot-text-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* ── Wrapper: lay characters side-by-side ─── */
+.dot-text {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--letter-gap, 8px);
+  /* Use flex-wrap just as a final fallback for ultra-narrow boundaries */
+  flex-wrap: wrap;
+  justify-content: center;
+  line-height: 0;
+}
+
+.dot-char {
+  display: block;
+  flex-shrink: 0;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── Fade-in animation for the whole char ──── */
+.dot-char--animated {
+  animation: dotCharFadeIn 0.5s ease both;
+  animation-delay: var(--anim-delay, 0s);
+  opacity: 0;
+}
+
+@keyframes dotCharFadeIn {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+/* ── Per-dot staggered pop-in ───────────────── */
+.dot--on {
+  animation: dotPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: var(--dot-delay, 0s);
+}
+
+@keyframes dotPopIn {
+  from {
+    r: 0;
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Pulse animation (heartbeat glow) ───────── */
+.dot-text--pulse .dot--on {
+  animation: dotPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+             dotPulse 2.4s ease-in-out 0.5s infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 1;    filter: brightness(1);   }
+  50%       { opacity: 0.55; filter: brightness(1.8); }
+}
+
+/* ── "Off" ghost dots stay static ───────────── */
+.dot--off {
+  animation: none;
+}

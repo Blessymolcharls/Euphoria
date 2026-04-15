@@ -20,10 +20,11 @@
 }
 
 .heading {
-  font-size: clamp(1.6rem, 3vw, 2.2rem);
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  /* font-size irrelevant — SVG dot-matrix content */
+  letter-spacing: 0;
+  filter: drop-shadow(0 0 16px rgba(255,255,255,0.1));
 }
 
 .playlistList {

@@ -1,0 +1,238 @@
+/* DotTypography.css — Demo page styles */
+
+/* ── Page shell ─────────────────────────────── */
+.dot-page {
+  min-height: calc(100vh - var(--nav-height) - var(--player-height));
+  padding: 60px 32px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Radial vignette glow at top */
+.dot-page::before {
+  content: '';
+  position: absolute;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 400px;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Page header ────────────────────────────── */
+.dot-page__hero {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.dot-page__eyebrow {
+  font-family: var(--font);
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.dot-page__subtitle {
+  font-family: var(--font);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.08em;
+  max-width: 480px;
+  line-height: 1.8;
+  margin-top: 8px;
+}
+
+/* ── Section card ───────────────────────────── */
+.dot-section {
+  width: 100%;
+  max-width: 900px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 40px 40px 44px;
+  position: relative;
+  background: rgba(255, 255, 255, 0.018);
+  transition: border-color 0.3s;
+}
+.dot-section:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.dot-section__label {
+  position: absolute;
+  top: -11px;
+  left: 20px;
+  background: #000;
+  padding: 0 10px;
+  font-family: var(--font);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.dot-section__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+}
+
+/* ── Size-comparison row ────────────────────── */
+.dot-sizes {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.dot-size-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.dot-size-row__tag {
+  font-family: var(--font);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.25);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* ── Color swatches ─────────────────────────── */
+.dot-colors {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+}
+
+/* ── Alphabet grid ──────────────────────────── */
+.dot-alphabet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+}
+
+/* ── Interactive sandbox ────────────────────── */
+.dot-sandbox {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dot-sandbox__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+.dot-sandbox__input {
+  flex: 1;
+  min-width: 200px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
+  padding: 10px 16px;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.dot-sandbox__input:focus {
+  border-color: rgba(255,255,255,0.4);
+}
+.dot-sandbox__input::placeholder {
+  color: rgba(255,255,255,0.22);
+}
+
+.dot-sandbox__slider-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dot-sandbox__slider-label {
+  font-family: var(--font);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.35);
+  white-space: nowrap;
+}
+
+.dot-sandbox__slider {
+  width: 100px;
+  accent-color: #fff;
+}
+
+.dot-sandbox__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dot-sandbox__toggle input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: #fff;
+  cursor: pointer;
+}
+
+.dot-sandbox__toggle span {
+  font-family: var(--font);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+}
+
+.dot-sandbox__preview {
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  padding: 12px 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+/* ── Scrollbar for sandbox preview ─────────── */
+.dot-sandbox__preview::-webkit-scrollbar {
+  height: 3px;
+}
+.dot-sandbox__preview::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 600px) {
+  .dot-page {
+    padding: 40px 16px 60px;
+    gap: 48px;
+  }
+  .dot-section {
+    padding: 28px 20px 32px;
+  }
+  .dot-sandbox__slider {
+    width: 70px;
+  }
+  .dot-size-row__tag {
+    display: none;
+  }
+}

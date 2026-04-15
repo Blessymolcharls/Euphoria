@@ -75,12 +75,12 @@
 }
 
 .headline {
-  font-size: clamp(2.5rem, 6vw, 4.2rem);
-  font-family: var(--font-dot);
-  line-height: 1.1;
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  /* font-size irrelevant — content is SVG */
+  line-height: 1;
 }
 
 .sub {
@@ -208,18 +208,13 @@
 .featureTile svg {
   opacity: 0.9;
 }
-.featureTile span {
-  font-size: 0.7rem;
-  font-weight: 800;
-  font-family: 'Courier New', Courier, monospace;
-  color: rgba(255,255,255,0.7);
-  line-height: 1.4;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+/* dot-text inside tile overrides: keep it centered */
+.featureTile .dot-text {
+  overflow: visible;
+  justify-content: center;
 }
 
 @media (max-width: 600px) {
-  .headline { font-size: 2.2rem; }
   .tileGrid { grid-template-columns: repeat(2, 1fr); }
   .hero { padding: 40px 20px; }
   .form { padding: 0; }
