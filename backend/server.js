@@ -1,14 +1,14 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import connectDB from './src/config/db.js';
 import playlistRoutes from './src/routes/playlist.routes.js';
 import downloadRoutes from './src/routes/download.routes.js';
 import authRoutes from './src/routes/auth.routes.js';
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
